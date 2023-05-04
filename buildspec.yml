@@ -3,15 +3,45 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      windows: "windows_server_2022_rtm"
+      powershell: "7.2.4"
   pre_build:
     commands:
-      - aws ec2 run-instances --image-id ami-xxxxxxxxxxxxxx --count 1 --instance-type t2.micro --key-name my-key-pair --security-group-ids sg-xxxxxxxx --subnet-id subnet-xxxxxxxx --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-test-instance}]' --user-data "powershell -Command \"& {$((New-Object System.Net.WebClient).DownloadString('https://my-domain.com/install-docker.ps1'))}\"" > instance.json
+      - >
+        $userData = @"
+        # <powershell>
+        # prerequisites 
+        # Docker EE required Windows Server 2016 and higher
+        # Windows server STD 2016 - 10.0.14393 N/A Build 14393
+        # powershell version 5
+        set-executionpolicy -scope CurrentUser -executionPolicy Bypass -Force
+        If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+        {
+          # Relaunch as an elevated process:
+          Start-Process powershell.exe "-File",('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
+          exit
+        }
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        #Install Docker Provider
+        Install-Package -Name DockerMsftProvider -Force
+        #Install Docker from Docker Provider
+        Install-Package -Name docker -ProviderName DockerMsftProvider -Force
+        Restart-Computer -Confirm
+        # </powershell>
+        "@
+      - aws ec2 run-instances --image-id ami-04adeb9ef364bcb6a --count 1 --instance-type t2.micro --key-name ecs-keys --security-group-ids sg-01592497c48aacf6d --subnet-id subnet-0b50655229b02d022 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MontyCloud}]' --user-data $userData > instance.json
       - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
   build:
     commands:
-      - docker build -t my-test-image .
-      - docker run my-test-image
+      # Get the public IP address of the EC2 instance
+      # - >
+      #   ipAddress=$(aws ec2 describe-instances --instance-ids $instanceId --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+      # SSH into the EC2 instance and execute the commands
+      # - ssh -o StrictHostKeyChecking=no ec2-user@$ipAddress -i /ecs-keys.pem 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 276954963877.dkr.ecr.us-west-2.amazonaws.com'
+      # - ssh -o StrictHostKeyChecking=no ec2-user@$ipAddress -i /ecs-keys.pem 'docker pull 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0'
+      # - ssh -o StrictHostKeyChecking=no ec2-user@$ipAddress -i /ecs-keys.pem 'docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0'
+      # - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 276954963877.dkr.ecr.us-west-2.amazonaws.com
+      # - docker pull 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
+      # - docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
   post_build:
     commands:
       - aws ec2 stop-instances --instance-ids $instanceId
