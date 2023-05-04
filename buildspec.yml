@@ -6,29 +6,7 @@ phases:
       powershell: "7.2.4"
   pre_build:
     commands:
-      - >
-        $userData = @"
-        # <powershell>
-        # prerequisites 
-        # Docker EE required Windows Server 2016 and higher
-        # Windows server STD 2016 - 10.0.14393 N/A Build 14393
-        # powershell version 5
-        set-executionpolicy -scope CurrentUser -executionPolicy Bypass -Force
-        If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
-        {
-          # Relaunch as an elevated process:
-          Start-Process powershell.exe "-File",('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
-          exit
-        }
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        #Install Docker Provider
-        Install-Package -Name DockerMsftProvider -Force
-        #Install Docker from Docker Provider
-        Install-Package -Name docker -ProviderName DockerMsftProvider -Force
-        Restart-Computer -Confirm
-        # </powershell>
-        "@
-      - aws ec2 run-instances --image-id ami-04adeb9ef364bcb6a --count 1 --instance-type t2.micro --key-name ecs-keys --security-group-ids sg-01592497c48aacf6d --subnet-id subnet-0b50655229b02d022 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MontyCloud}]' --user-data $userData > instance.json
+      - aws ec2 run-instances --image-id ami-04adeb9ef364bcb6a --count 1 --instance-type t2.micro --key-name ecs-keys --security-group-ids sg-01592497c48aacf6d --subnet-id subnet-0b50655229b02d022 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MontyCloud}]' --user-data file://docker_install_script.sh > instance.json
       - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
   build:
     commands:
