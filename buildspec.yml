@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      windows: "windows_server_2022_rtm"
+  pre_build:
+    commands:
+      - aws ec2 run-instances --image-id ami-xxxxxxxxxxxxxx --count 1 --instance-type t2.micro --key-name my-key-pair --security-group-ids sg-xxxxxxxx --subnet-id subnet-xxxxxxxx --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=my-test-instance}]' --user-data "powershell -Command \"& {$((New-Object System.Net.WebClient).DownloadString('https://my-domain.com/install-docker.ps1'))}\"" > instance.json
+      - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
+  build:
+    commands:
+      - docker build -t my-test-image .
+      - docker run my-test-image
+  post_build:
+    commands:
+      - aws ec2 stop-instances --instance-ids $instanceId
