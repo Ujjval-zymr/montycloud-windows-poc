@@ -14,4 +14,4 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 Install-Package -Name DockerMsftProvider -Force
 #Install Docker from Docker Provider
 Install-Package -Name docker -ProviderName DockerMsftProvider -Force
-Restart-Computer -Confirm
+Restart-Computer -Force

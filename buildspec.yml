@@ -10,6 +10,7 @@ phases:
       - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
   build:
     commands:
+      # - sleep 120
       # Get the public IP address of the EC2 instance
       # - >
       #   ipAddress=$(aws ec2 describe-instances --instance-ids $instanceId --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
@@ -22,4 +23,4 @@ phases:
       # - docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
   post_build:
     commands:
-      - aws ec2 stop-instances --instance-ids $instanceId
+      # - aws ec2 stop-instances --instance-ids $instanceId
