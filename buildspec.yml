@@ -8,8 +8,8 @@ phases:
     commands:
       # - aws ec2 run-instances --image-id ami-04adeb9ef364bcb6a --count 1 --instance-type t2.micro --key-name ecs-keys --security-group-ids sg-01592497c48aacf6d --subnet-id subnet-0b50655229b02d022 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MontyCloud}]' --user-data file://docker_install_script.sh > instance.json
       - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
-      - Start-Process .\SessionManagerPluginSetup.exe -ArgumentList "/install /quiet"
-      - $env:PATH += ";C:\Program Files\Amazon\SSM\Plugins\session-manager-plugin\bin"
+      - $ENV:ProgramFiles + "\Amazon\SSM\Plugins\SessionManagerPlugin\bin\SessionManagerPluginSetup.exe" /install
+      # - $env:PATH += ";C:\Program Files\Amazon\SSM\Plugins\session-manager-plugin\bin"
       # - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
   build:
     commands:
