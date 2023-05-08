@@ -11,7 +11,7 @@ phases:
   build:
     commands:
       # - sleep 300
-      - aws ssm start-session --target i-083889343e2e7f585 --document-name AWS-StartPortForwardingSession --parameters "localPortNumber=3389,portNumber=3389"
+      - aws ssm start-session --target i-083889343e2e7f585 
       - docker login -u AWS -p $(aws ecr get-login-password --region us-west-2) 276954963877.dkr.ecr.us-west-2.amazonaws.com
       - docker pull 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
       - docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
