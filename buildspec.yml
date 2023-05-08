@@ -10,17 +10,12 @@ phases:
       - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
   build:
     commands:
-      # - sleep 120
-      # Get the public IP address of the EC2 instance
-      # - >
-      #   ipAddress=$(aws ec2 describe-instances --instance-ids $instanceId --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
-      # SSH into the EC2 instance and execute the commands
-      # - ssh -o StrictHostKeyChecking=no ec2-user@$ipAddress -i /ecs-keys.pem 'aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 276954963877.dkr.ecr.us-west-2.amazonaws.com'
-      # - ssh -o StrictHostKeyChecking=no ec2-user@$ipAddress -i /ecs-keys.pem 'docker pull 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0'
-      # - ssh -o StrictHostKeyChecking=no ec2-user@$ipAddress -i /ecs-keys.pem 'docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0'
-      # - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 276954963877.dkr.ecr.us-west-2.amazonaws.com
-      # - docker pull 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
-      # - docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
+      - sleep 300
+      - aws ssm start-session --target $instanceId --document-name AWS-StartPortForwardingSession --parameters "localPortNumber=3389,portNumber=3389"
+      - docker login -u AWS -p $(aws ecr get-login-password --region us-west-2) 276954963877.dkr.ecr.us-west-2.amazonaws.com
+      - docker pull 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
+      - docker run -p 8001:8001 276954963877.dkr.ecr.us-west-2.amazonaws.com/montycloud:1.0
+      - exit
   post_build:
     commands:
       # - aws ec2 stop-instances --instance-ids $instanceId
