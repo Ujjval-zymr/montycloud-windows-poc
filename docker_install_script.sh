@@ -37,6 +37,7 @@ Start-Service -Name "AmazonSSMAgent"
 Set-Service -Name "AmazonSSMAgent" -StartupType Automatic
 
 # Checking SSM Agent status
+Restart-Service AmazonSSMAgent
 Get-Service AmazonSSMAgent
 
 Restart-Computer -Force
