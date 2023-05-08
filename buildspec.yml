@@ -14,6 +14,11 @@ phases:
       - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
       - Start-Process "C:\SessionManager\SessionManagerPluginSetup.exe" "/install /quiet"
       # Install Session Manager Plugin
+      # Download the Session Manager plugin installer
+      - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
+
+      # Install the plugin
+      - Start-Process -FilePath "SessionManagerPluginSetup.exe" -ArgumentList "/install" -Wait
       # - powershell.exe -Command "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe -OutFile SessionManagerPluginSetup.exe; Start-Process SessionManagerPluginSetup.exe -Wait -ArgumentList '/install /quiet'; Remove-Item SessionManagerPluginSetup.exe -Force"
       
       # - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
