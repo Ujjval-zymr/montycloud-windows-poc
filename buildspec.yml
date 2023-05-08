@@ -9,16 +9,16 @@ phases:
       # - aws ec2 run-instances --image-id ami-04adeb9ef364bcb6a --count 1 --instance-type t2.micro --key-name ecs-keys --security-group-ids sg-01592497c48aacf6d --subnet-id subnet-0b50655229b02d022 --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MontyCloud}]' --user-data file://docker_install_script.sh > instance.json
       # - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
       # - powershell.exe -Command "& 'C:\Program Files\Amazon\SessionManagerPlugin\bin\session-manager-plugin.exe' /install /quiet"
-      - New-Item -ItemType Directory -Path C:\SessionManager
-      - cd C:\SessionManager
-      - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
-      - Start-Process "C:\SessionManager\SessionManagerPluginSetup.exe" "/install /quiet"
+      # - New-Item -ItemType Directory -Path C:\SessionManager
+      # - cd C:\SessionManager
+      # - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
+      # - Start-Process "C:\SessionManager\SessionManagerPluginSetup.exe" "/install /quiet"
       # Install Session Manager Plugin
       # Download the Session Manager plugin installer
       - Invoke-WebRequest "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe" -OutFile "SessionManagerPluginSetup.exe"
 
       # Install the plugin
-      - Start-Process -FilePath "SessionManagerPluginSetup.exe" -ArgumentList "/install" -Wait
+      - Start-Process -FilePath "SessionManagerPluginSetup.exe" -ArgumentList "/install /quiet" -Wait
       # - powershell.exe -Command "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe -OutFile SessionManagerPluginSetup.exe; Start-Process SessionManagerPluginSetup.exe -Wait -ArgumentList '/install /quiet'; Remove-Item SessionManagerPluginSetup.exe -Force"
       
       # - $instanceId = (Get-Content instance.json | ConvertFrom-Json).Instances.InstanceId
