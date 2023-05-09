@@ -10,7 +10,7 @@ RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
 # Install latest version of Google Chrome
-RUN choco install googlechrome -y
+RUN choco install googlechrome --ignore-checksums -y
 
 # Install latest version of Microsoft Edge
 RUN choco install microsoft-edge -y
